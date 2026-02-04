@@ -1,37 +1,27 @@
-# Memória simples em RAM
-memory = {}
+from app.memory import get_state, set_state
 
 def responder(user_id: str, message: str) -> str:
-    msg = message.lower().strip()
+    message = message.lower().strip()
+    state = get_state(user_id)
 
-    # Inicializa memória do usuário
-    if user_id not in memory:
-        memory[user_id] = {"stage": "inicio"}
+    # início da conversa
+    if not state:
+        set_state(user_id, {"step": "menu"})
+        return "Olá! 😄 Você quer *orçamento* ou *informações*?"
 
-    stage = memory[user_id]["stage"]
-
-    if stage == "inicio":
-        if msg in ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite"]:
-            memory[user_id]["stage"] = "menu"
-            return (
-                "Olá! 👋\n"
-                "Como posso te ajudar?\n\n"
-                "1️⃣ Orçamento\n"
-                "2️⃣ Informações"
-            )
+    # menu principal
+    if state["step"] == "menu":
+        if "orçamento" in message:
+            set_state(user_id, {"step": "orcamento_tipo"})
+            return "Perfeito! Qual tipo de móvel você deseja?"
+        elif "informação" in message:
+            return "Posso te ajudar com prazos, materiais ou valores médios."
         else:
-            return "Oi! Digite *oi* para começar 🙂"
+            return "Por favor, responda *orçamento* ou *informações*."
 
-    if stage == "menu":
-        if msg == "1":
-            memory[user_id]["stage"] = "orcamento"
-            return "Perfeito! Que tipo de móvel você quer orçar?"
-        elif msg == "2":
-            return "Somos uma marcenaria especializada em móveis sob medida 🪵"
-        else:
-            return "Escolha uma opção válida: 1️⃣ ou 2️⃣"
+    # fluxo de orçamento
+    if state["step"] == "orcamento_tipo":
+        set_state(user_id, {"step": "final"})
+        return f"Legal! Um(a) **{message}**. Em breve um especialista continua 😉"
 
-    if stage == "orcamento":
-        return f"Legal! Vou anotar que você quer um orçamento de: {message}"
-
-    return "Desculpa, ainda não entendi isso."
+    return "Não entendi muito bem. Pode repetir?"
