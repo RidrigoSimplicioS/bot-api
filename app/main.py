@@ -1,26 +1,32 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from typing import Optional
 from app.brain import responder
 
 app = FastAPI()
 
-class WebhookIn(BaseModel):
-    from_number: str
-    text: str
+class MessageIn(BaseModel):
+    from_number: Optional[str] = None
+    text: Optional[str] = None
+    from_: Optional[str] = None
+    message: Optional[str] = None
 
 @app.get("/")
 def home():
     return {"status": "API rodando"}
 
 @app.post("/webhook")
-def webhook(data: WebhookIn):
-    reply = responder(
-        user_id=data.from_number,
-        message=data.text
-    )
+def webhook(data: MessageIn):
 
-    # formato pronto para WhatsApp
+    number = data.from_number or data.from_
+    text = data.text or data.message
+
+    if not number or not text:
+        return {"error": "Campos inválidos"}
+
+    reply = responder(text)
+
     return {
-        "to": data.from_number,
+        "to": number,
         "reply": reply
     }
