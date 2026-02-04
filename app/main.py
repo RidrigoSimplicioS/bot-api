@@ -4,14 +4,22 @@ from app.brain import responder
 
 app = FastAPI()
 
-class MessageIn(BaseModel):
-    message: str
+# Payload estilo WhatsApp
+class WhatsAppMessage(BaseModel):
+    from_number: str
+    text: str
 
 @app.get("/")
 def home():
     return {"status": "API rodando"}
 
 @app.post("/webhook")
-def webhook(data: MessageIn):
-    reply = responder(data.message)
-    return {"reply": reply}
+def webhook(data: WhatsAppMessage):
+    reply = responder(
+        user_id=data.from_number,
+        message=data.text
+    )
+    return {
+        "to": data.from_number,
+        "reply": reply
+    }
