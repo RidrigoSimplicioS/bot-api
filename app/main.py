@@ -4,6 +4,11 @@ from typing import Optional
 from app.brain import responder
 
 app = FastAPI()
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import Optional
+
+from app.brain import responder
 
 class MessageIn(BaseModel):
     from_number: Optional[str] = None
@@ -24,7 +29,7 @@ def webhook(data: MessageIn):
     if not number or not text:
         return {"error": "Campos inválidos"}
 
-    reply = responder(text)
+    reply = responder(number, text)
 
     return {
         "to": number,

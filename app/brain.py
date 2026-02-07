@@ -1,5 +1,7 @@
 from app.memory import get_state, set_state
 from app.utils import normalize
+from app.utils import normalize
+from app.memory import get_state, set_state
 
 def responder(user_id: str, message: str) -> str:
     msg = normalize(message)
